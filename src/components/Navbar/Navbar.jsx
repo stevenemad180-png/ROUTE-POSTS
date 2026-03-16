@@ -213,14 +213,9 @@ const { data } = useQuery({
               </button>
             </NavbarMenuItem>
 
-            <NavbarMenuItem>
-              <button
-                onClick={() => navigate("/notifications")}
-                className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50 transition flex items-center gap-2"
-              >
-                <FiBell /> Notifications
-              </button>
-            </NavbarMenuItem>
+                 <DropdownItem key="chagePassword" onClick={() => navigate("/ChangePassword")}>
+                  change password
+                </DropdownItem>
 
             <NavbarMenuItem>
               <button
