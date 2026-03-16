@@ -21,7 +21,7 @@ function Layout() {
                 <p className="text-lg font-extrabold text-slate-900 tracking-tight">
                   Route <span className="text-blue-700">Posts</span>
                 </p>
-                <p className="text-xs text-slate-500">Social app • React + API</p>
+                <p className="text-xs text-slate-500">Social app •</p>
               </div>
             </div>
 

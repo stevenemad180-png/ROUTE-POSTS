@@ -17,9 +17,7 @@ import {
 
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/Contexttoken";
-
-// React Icons (iOS-ish style)
-import { FiHome, FiBell, FiUser, FiLogOut } from "react-icons/fi";
+import { FiHome, FiUser, FiLogOut, FiLock } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -37,24 +35,28 @@ export const AcmeLogo = () => {
 };
 
 export default function Mynav() {
-  function getdataprofile() {
-  return axios.get(`https://route-posts.routemisr.com/users/profile-data`, {
-    headers: { token: localStorage.getItem("tkn") }
-  });
-}
-
-const { data } = useQuery({
-  queryKey: ["getprofile"],
-  queryFn: getdataprofile,
-});
-   const userPhoto = data?.data?.data?.user?.photo;
   const navigate = useNavigate();
   const location = useLocation();
-
   const { userToken, saveToken } = useContext(AuthContext);
+
   const isUserLogin = !!userToken;
 
+  function getdataprofile() {
+    return axios.get(`https://route-posts.routemisr.com/users/profile-data`, {
+      headers: { token: localStorage.getItem("tkn") },
+    });
+  }
+
+  const { data } = useQuery({
+    queryKey: ["getprofile"],
+    queryFn: getdataprofile,
+    enabled: isUserLogin,
+  });
+
+  const userPhoto = data?.data?.data?.user?.photo;
+
   function handlelog() {
+    localStorage.removeItem("tkn");
     saveToken(null);
     navigate("/login");
   }
@@ -68,7 +70,7 @@ const { data } = useQuery({
     const p = location.pathname.toLowerCase();
 
     if (p.startsWith("/profile")) return "profile";
-    if (p.startsWith("/notifications")) return "notifications";
+    if (p.startsWith("/changepassword")) return "changePassword";
     return "home";
   }, [location.pathname]);
 
@@ -84,7 +86,6 @@ const { data } = useQuery({
         shadow-[0_10px_30px_-20px_rgba(15,23,42,0.25)]
       "
     >
-      {/* Brand */}
       <NavbarBrand className="gap-2">
         <div className="grid place-items-center w-10 h-10 rounded-2xl bg-blue-700 text-white shadow-sm">
           <AcmeLogo />
@@ -98,15 +99,12 @@ const { data } = useQuery({
         </NavLink>
       </NavbarBrand>
 
-     
       {showOnlyLogo ? null : (
         <>
-          {/* Mobile toggle */}
           <NavbarContent className="sm:hidden" justify="end">
             <NavbarMenuToggle className="text-slate-800" />
           </NavbarContent>
 
-          {/* Center: Tabs (Desktop) */}
           <NavbarContent className="hidden sm:flex" justify="center">
             <Tabs
               aria-label="Navigation Tabs"
@@ -114,25 +112,23 @@ const { data } = useQuery({
               onSelectionChange={(key) => {
                 if (key === "home") navigate("/home");
                 if (key === "profile") navigate("/profile");
-                 if (key === "Changepassword") navigate("/ChangePassord");
-
+                if (key === "changePassword") navigate("/ChangePassword");
               }}
               variant="bordered"
               color="primary"
               classNames={{
-                 base: "bg-white/70 rounded-2xl  border-slate-800 p-1 shadow-sm",
-    tabList: "gap-1",
-    tab: `
-      h-10 px-5 rounded-xl
-      transition-all duration-200
-      text-slate-900
-      data-[hover=true]:bg-blue-500
-      data-[hover=true]:text-blue-700
-      data-[selected=true]:text-blue-700
-    `,
-    tabContent: "font-semibold",
-    cursor: "rounded-xl bg-blue-700 shadow-sm",
-  
+                base: "bg-white/70 rounded-2xl border border-slate-200 p-1 shadow-sm",
+                tabList: "gap-1",
+                tab: `
+                  h-10 px-5 rounded-xl
+                  transition-all duration-200
+                  text-slate-900
+                  data-[hover=true]:bg-blue-50
+                  data-[hover=true]:text-blue-700
+                  data-[selected=true]:text-blue-700
+                `,
+                tabContent: "font-semibold",
+                cursor: "rounded-xl bg-blue-700 shadow-sm",
               }}
             >
               <Tab
@@ -153,10 +149,18 @@ const { data } = useQuery({
                   </div>
                 }
               />
+              <Tab
+                key="changePassword"
+                title={
+                  <div className="flex items-center gap-2">
+                    <FiLock className="text-lg" />
+                    <span>Password</span>
+                  </div>
+                }
+              />
             </Tabs>
           </NavbarContent>
 
-          {/* Right: Avatar dropdown (Desktop) */}
           <NavbarContent as="div" justify="end" className="hidden sm:flex">
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
@@ -168,8 +172,10 @@ const { data } = useQuery({
                     color="primary"
                     name="User"
                     size="sm"
-                    src={userPhoto ||
-                      "https://i.pravatar.cc/150?u=a042581f4e29026704d"}
+                    src={
+                      userPhoto ||
+                      "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+                    }
                   />
                 </button>
               </DropdownTrigger>
@@ -185,8 +191,12 @@ const { data } = useQuery({
                 <DropdownItem key="profile" onClick={() => navigate("/profile")}>
                   Profile
                 </DropdownItem>
-                 <DropdownItem key="chagePassword" onClick={() => navigate("/ChangePassword")}>
-                  change password
+
+                <DropdownItem
+                  key="changePassword"
+                  onClick={() => navigate("/ChangePassword")}
+                >
+                  Change Password
                 </DropdownItem>
 
                 <DropdownItem
@@ -202,7 +212,6 @@ const { data } = useQuery({
             </Dropdown>
           </NavbarContent>
 
-          {/* Mobile menu */}
           <NavbarMenu className="bg-white border-t border-slate-200">
             <NavbarMenuItem>
               <button
@@ -213,16 +222,21 @@ const { data } = useQuery({
               </button>
             </NavbarMenuItem>
 
-                 <DropdownItem key="chagePassword" onClick={() => navigate("/ChangePassword")}>
-                  change password
-                </DropdownItem>
-
             <NavbarMenuItem>
               <button
                 onClick={() => navigate("/profile")}
                 className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50 transition flex items-center gap-2"
               >
                 <FiUser /> Profile
+              </button>
+            </NavbarMenuItem>
+
+            <NavbarMenuItem>
+              <button
+                onClick={() => navigate("/ChangePassword")}
+                className="w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50 transition flex items-center gap-2"
+              >
+                <FiLock /> Change Password
               </button>
             </NavbarMenuItem>
 
